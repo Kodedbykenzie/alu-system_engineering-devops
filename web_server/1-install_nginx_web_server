@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 # This script installs Nginx, configures it to listen on port 80, and serves a page with "Holberton School".
 
-# Update package list and install Nginx
+# Update the package list and install Nginx
 sudo apt-get update -y
 sudo apt-get install nginx -y
 
-# Configure Nginx to listen on all interfaces
-sudo sed -i 's/listen 80 default_server;/listen 0.0.0.0:80 default_server;/g' /etc/nginx/sites-available/default
-sudo sed -i 's/listen \[::\]:80 default_server;/listen [::]:80 default_server;/g' /etc/nginx/sites-available/default
-
 # Set up the HTML page with "Holberton School" content
-echo "Holberton School" | sudo tee /var/www/html/index.html
+echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
 
-# Configure Nginx to serve the index.html file at the root path
-sudo sed -i 's/index.nginx-debian.html/index.html/g' /etc/nginx/sites-available/default
+# Modify Nginx default site configuration to serve our custom index.html
+sudo sed -i 's/index nginx-debian.html/index.html/g' /etc/nginx/sites-available/default
 
-# Restart Nginx to apply changes
+# Restart Nginx to apply the changes
 sudo service nginx restart
 
-# Confirm Nginx is running and check the HTTP response status
-curl -s -o /dev/null -w "%{http_code}" 127.0.0.1
+# Check if Nginx is running and accepting traffic on port 80
+if ! curl -s -o /dev/null -w "%{http_code}" localhost:80 | grep -q "200"; then
+    echo "Error: Nginx is not returning 200 on the root path."
+    exit 1
+fi
+
+# Output success message
+echo "Nginx installed and configured successfully. 'Holberton School' page is being served."
 
