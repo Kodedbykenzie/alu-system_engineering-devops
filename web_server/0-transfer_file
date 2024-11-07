@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # This Bash script transfers a file from our client to a server
 
 # Check if exactly 4 parameters are provided
