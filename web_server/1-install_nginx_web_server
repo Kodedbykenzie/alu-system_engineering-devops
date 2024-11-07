@@ -5,13 +5,19 @@
 sudo apt-get update -y
 sudo apt-get install nginx -y
 
-# Update the default Nginx configuration to listen on all interfaces
+# Configure Nginx to listen on all interfaces
 sudo sed -i 's/listen 80 default_server;/listen 0.0.0.0:80 default_server;/g' /etc/nginx/sites-available/default
 sudo sed -i 's/listen \[::\]:80 default_server;/listen [::]:80 default_server;/g' /etc/nginx/sites-available/default
 
-# Create or replace the default HTML page with the required content
-echo "Holberton School for the win!" | sudo tee /var/www/html/index.nginx-debian.html
+# Set up the HTML page with "Holberton School" content
+echo "Holberton School" | sudo tee /var/www/html/index.html
 
-# Restart Nginx to apply changes (using service instead of systemctl)
+# Configure Nginx to serve the index.html file at the root path
+sudo sed -i 's/index.nginx-debian.html/index.html/g' /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
 sudo service nginx restart
+
+# Confirm Nginx is running and check the HTTP response status
+curl -s -o /dev/null -w "%{http_code}" 127.0.0.1
 
