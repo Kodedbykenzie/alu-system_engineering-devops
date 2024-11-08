@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# This script configures Nginx to include a custom HTTP header 'X-Served-By' with the server's hostname.
+
+# shellcheck disable=SC2154
+
+# Update package list and install Nginx
+sudo apt-get update -y
+sudo apt-get install -y nginx
+
+# Create an index.html page with "Holberton School" content
+echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
+
+# Configure Nginx to add the custom header 'X-Served-By' with the server's hostname
+# This adds the header within the server block
+sudo sed -i '/server_name _;/a \    add_header X-Served-By $HOSTNAME;' /etc/nginx/sites-available/default
+
+# Test Nginx configuration for syntax errors
+sudo nginx -t
+
+# Restart Nginx to apply changes
+sudo service nginx restart
+
