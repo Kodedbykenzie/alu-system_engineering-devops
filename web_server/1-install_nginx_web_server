@@ -1,27 +1,18 @@
 #!/usr/bin/env bash
-# This script installs and configures Nginx to serve a page with "Holberton School"
+# commands to install nginx on web server yep
 
-# Update package list and install Nginx
-sudo apt-get update -y
-sudo apt-get install -y nginx
+apt-get update
+apt-get install -y nginx
 
-# Allow traffic on Nginx HTTP port
-sudo ufw allow 'Nginx HTTP'
+mkdir /etc/nginx/html
+touch /etc/nginx/html/index.html
+echo "Holberton School" >/etc/nginx/html/index.html
+printf %s "server {
+     listen      80 default_server;
+     listen      [::]:80 default_server;
+     root        /etc/nginx/html;
+     index       index.html index.htm;
+}
+" >/etc/nginx/sites-available/default
 
-# Create an index.html page with the required content
-echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
-
-# Test Nginx configuration for syntax errors
-sudo nginx -t
-
-# Restart Nginx to apply changes
-sudo service nginx restart
-
-# Verify that Nginx returns the correct status code and content
-if curl -s localhost | grep -q "Holberton School"; then
-    echo "Nginx is serving the 'Holberton School' page successfully."
-else
-    echo "Error: Nginx is not serving the expected content."
-    exit 1
-fi
-
+service nginx restart
