@@ -1,25 +1,27 @@
 #!/usr/bin/env bash
-# This script installs Nginx, configures it to listen on port 80, and serves a page with "Holberton School".
+# This script installs and configures Nginx to serve a page with "Holberton School"
 
-# Update the package list and install Nginx
+# Update package list and install Nginx
 sudo apt-get update -y
-sudo apt-get install nginx -y
+sudo apt-get install -y nginx
 
-# Set up the HTML page with "Holberton School" content
+# Allow traffic on Nginx HTTP port
+sudo ufw allow 'Nginx HTTP'
+
+# Create an index.html page with the required content
 echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
 
-# Modify Nginx default site configuration to serve our custom index.html
-sudo sed -i 's/index nginx-debian.html/index.html/g' /etc/nginx/sites-available/default
+# Test Nginx configuration for syntax errors
+sudo nginx -t
 
-# Restart Nginx to apply the changes
+# Restart Nginx to apply changes
 sudo service nginx restart
 
-# Check if Nginx is running and accepting traffic on port 80
-if ! curl -s -o /dev/null -w "%{http_code}" localhost:80 | grep -q "200"; then
-    echo "Error: Nginx is not returning 200 on the root path."
+# Verify that Nginx returns the correct status code and content
+if curl -s localhost | grep -q "Holberton School"; then
+    echo "Nginx is serving the 'Holberton School' page successfully."
+else
+    echo "Error: Nginx is not serving the expected content."
     exit 1
 fi
-
-# Output success message
-echo "Nginx installed and configured successfully. 'Holberton School' page is being served."
 
