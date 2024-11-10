@@ -1,40 +1,28 @@
 #!/usr/bin/env bash
-# Script to configure Nginx with a custom HTTP response header and set hostname
+# Bash script that configures a new Ubuntu machine nginx
+# Configuring Nginx HTTP response header
 
-# Update the system and install Nginx
-apt-get update -y
-apt-get install -y nginx
+sudo apt-get -y update
+sudo apt-get -y install nginx
+ufw allow  'Nginx HTTP'
 
-# Set the hostname based on the specific student ID
-if [[ $(hostname) != "618120744-web-01" && $(hostname) != "618120744-web-02" ]]; then
-    echo "Setting the hostname to match the required format..."
-    if [[ $1 == "web-01" ]]; then
-        hostnamectl set-hostname 618120744-web-01
-    elif [[ $1 == "web-02" ]]; then
-        hostnamectl set-hostname 618120744-web-02
-    else
-        echo "Please specify 'web-01' or 'web-02' as an argument."
-        exit 1
-    fi
-fi
+sudo echo "Holberton School" | sudo tee /var/www/html/index.html
 
-# Create a test HTML page for the root
-echo "<html>
-<head>
-    <title>Welcome</title>
-</head>
-<body>
-    This is a test page served by $(hostname).
-</body>
-</html>" > /var/www/html/index.html
+# redirection config
+replacement="server_name _;\\
+    rewrite ^/redirect_me https://github.com permanent;"
+sudo sed -i "s|server_name _;|$replacement|" /etc/nginx/sites-available/default
 
-# Configure Nginx to include a custom HTTP response header
-sed -i '/server {/a \\n    add_header X-Served-By \"$hostname\";' /etc/nginx/sites-enabled/default
-
-# Test the Nginx configuration for syntax errors
-nginx -t
-
-# Restart Nginx to apply changes
-service nginx restart
+#creating 404 error page
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
+page="listen 80 default_server;\\n\\terror_page 404 /404.html;\\n\\tlocation = /404.html {\\n\\t\\troot /var/www/html;\\n\\t\\tinternal;\\n\\t}"
+sudo sed -i "s|listen 80 default_server;|$page|" /etc/nginx/sites-available/default
 
 
+# Creating an HTTP response header
+sudo sed -i "/server_name _/a add_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
+
+
+# config testing and starting
+sudo nginx -t
+sudo service nginx start
